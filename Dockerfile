@@ -16,16 +16,23 @@ COPY --from=openvino/ubuntu18_dev:2019_R3.1 /opt/intel/openvino /opt/intel/openv
 USER root
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y python-dev python3-dev
+RUN apt-get install gunicorn3 -y
 USER openvino
 ADD requirements_openvino.txt .
 RUN python3 -m pip install -r requirements_openvino.txt
-RUN python3 -m pip install --upgrade tensorboard
+#RUN python3 -m pip install --upgrade tensorboard
 
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 ADD requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
+# Expose port 5000
+EXPOSE 5000
+ENV PORT 5000
+
 COPY --from=web websrc/build/ websrc/build/
 ADD main.py .
-CMD ["python3", "main.py"]
+
+CMD exec gunicorn3 --bind :$PORT main:app --workers 1 --threads 1 --timeout 180
+#CMD ["python3", "main.py"]

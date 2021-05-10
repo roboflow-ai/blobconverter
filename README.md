@@ -13,7 +13,7 @@
 
     ```
     docker build -t blobconverter .
-    docker run -p 8080:8080 blobconverter
+    docker run -p 5000:5000 blobconverter
     ```
 
 - System - python 3.5 or higher required
